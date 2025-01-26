@@ -117,7 +117,7 @@ first.geometry("500x500")
 first.title("Computer HELPER")
 
 # Title Label
-label = tk.Label(first, text="Computer Helper", font=('Bold', 28))
+label = tk.Label(first, text="Hoya Helper", font=('Bold', 28))
 label.pack(padx=50, pady=30)
 
 ##
