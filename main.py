@@ -133,7 +133,7 @@ label.place()
 # Function to handle login
 
 # Button for login
-button = tk.Button(first, text="Enable JARVIS", font=('Bold', 15),command=detect_voice)
+button = tk.Button(first, text="Enable Hoya", font=('Bold', 15),command=detect_voice)
 button.pack(pady=20)
 
 button = tk.Button(first, text="Enable Eye Tracker", font=('Bold', 15),command=eye_tracking)
