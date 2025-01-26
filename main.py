@@ -3,7 +3,10 @@ import mediapipe as mp
 import pyautogui
 import speech_recognition as sr
 import website_open as wo  # Assuming website_opener is inside this module
+import threading
+import queue
 
+frame_queue = queue.Queue()
 
 def detect_voice():
    # Initialize the recognizer
@@ -65,13 +68,15 @@ def detect_voice():
 
 
 
-def eye_tracking():
-    sensitivity = 1.2 # varaible here for
+def eye_tracking(sensitivity):
     cam = cv2.VideoCapture(0)
     face_mesh = mp.solutions.face_mesh.FaceMesh(refine_landmarks=True)
     screen_w, screen_h = pyautogui.size()
-    while True:
-        _, frame = cam.read()
+    pyautogui.moveTo(screen_w // 2, screen_h // 2)  # Start cursor in the middle of the screen
+    while cam.isOpened():
+        success, frame = cam.read()
+        if not success:
+            break
         frame = cv2.flip(frame, 1)
         rgb_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
         output = face_mesh.process(rgb_frame)
@@ -84,28 +89,43 @@ def eye_tracking():
                 y = int(landmark.y * frame_h)
                 cv2.circle(frame, (x, y), 3, (0, 255, 0))
                 if id == 1:
-                    screen_x = screen_w * landmark.x * sensitivity
-                    screen_y = screen_h * landmark.y * sensitivity
+                    screen_x = screen_w // 2 + (landmark.x - 0.5) * screen_w * sensitivity
+                    screen_y = screen_h // 2 + (landmark.y - 0.5) * screen_h * sensitivity
                     pyautogui.moveTo(screen_x, screen_y)
-            left = [landmarks[145], landmarks[159]]
-            for landmark in left:
+            left_eye = [landmarks[145], landmarks[159]]
+            right_eye = [landmarks[374], landmarks[386]]
+            for landmark in left_eye + right_eye:
                 x = int(landmark.x * frame_w)
                 y = int(landmark.y * frame_h)
                 cv2.circle(frame, (x, y), 3, (0, 255, 255))
-            print(left[0].y-left[1].y)
+            left_eye_ratio = left_eye[0].y - left_eye[1].y
+            right_eye_ratio = right_eye[0].y - right_eye[1].y
             
-            if (left[0].y - left[1].y) < 0.013: # change back to 0.004
+            if left_eye_ratio < 0.015 and right_eye_ratio > 0.02:  # Detect left eye wink
                 pyautogui.click()
                 pyautogui.sleep(1)
-        cv2.imshow('Eye Controlled Mouse', frame)
-        cv2.waitKey(1)
+        frame_queue.put(frame)
+    cam.release()
 
+def display_frames():
+    cv2.namedWindow('Eye Controlled Mouse', cv2.WINDOW_NORMAL)
+    screen_w, screen_h = pyautogui.size()
+    cv2.moveWindow('Eye Controlled Mouse', screen_w // 2 - 320, screen_h // 2 - 240)  # Center the window
+    while True:
+        if not frame_queue.empty():
+            frame = frame_queue.get()
+            cv2.imshow('Eye Controlled Mouse', frame)
+            if cv2.waitKey(1) & 0xFF == ord('q'):
+                break
+    cv2.destroyAllWindows()
 
+def both(sensitivity):
+    eye_tracking_thread = threading.Thread(target=eye_tracking, args=(sensitivity,))
+    detect_voice_thread = threading.Thread(target=detect_voice)
+    eye_tracking_thread.start()
+    detect_voice_thread.start()
+    display_frames()
 
-
-def both():
-    eye_tracking()
-    detect_voice()
 import tkinter as tk
 import random as r
 
@@ -114,39 +134,30 @@ import random as r
 # Create the Login window
 first = tk.Tk()
 first.geometry("500x500")
-first.title("Computer HELPER")
+first.title("HOYA HELPER")
 
 # Title Label
 label = tk.Label(first, text="Hoya Helper", font=('Bold', 28))
 label.pack(padx=50, pady=30)
 
-##
 label = tk.Label(first, text="Your handy dandy helper", font=('Arial', 15))
 label.place()
 
-
-##
-
-# Labels and Entry fields for username and password
-
-
-# Function to handle login
-
 # Button for login
-button = tk.Button(first, text="Enable Hoya", font=('Bold', 15),command=detect_voice)
+button = tk.Button(first, text="Enable JARVIS", font=('Bold', 15), command=detect_voice)
 button.pack(pady=20)
 
-button = tk.Button(first, text="Enable Eye Tracker", font=('Bold', 15),command=eye_tracking)
+# Sensitivity slider
+sensitivity_var = tk.DoubleVar(value=4.0)  # Set default sensitivity to 4.0
+slider = tk.Scale(first, from_=2.0, to=8.0, resolution=0.5, orient=tk.HORIZONTAL, label="Sensitivity", variable=sensitivity_var)
+slider.pack(pady=20)
+
+button = tk.Button(first, text="Enable Eye Tracker", font=('Bold', 15), command=lambda: eye_tracking(sensitivity_var.get()))
 button.pack(pady=40)
 
-
-button2 = tk.Button(first,text="Enable Eye Tracker & Enable JARVIS", font=('Bold', 15),command=both)
+button2 = tk.Button(first, text="Enable Eye Tracker & Enable hoya", font=('Bold', 15), command=lambda: both(sensitivity_var.get()))
 button2.pack(pady=30)
+
 # Run the Login window
-
-
-
-
-
 first.mainloop()
 
