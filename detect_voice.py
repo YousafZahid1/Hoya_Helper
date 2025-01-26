@@ -1,5 +1,6 @@
 import speech_recognition as sr
 import website_open as wo  # Assuming website_opener is inside this module
+import tkinter as tk  # Import tkinter
 
 def detect_voice():
     # Initialize the recognizer
