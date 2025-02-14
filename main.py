@@ -5,6 +5,8 @@ import speech_recognition as sr
 import website_open as wo  # Assuming website_opener is inside this module
 import threading
 import queue
+import tkinter as tk
+import random as r
 
 frame_queue = queue.Queue()
 
@@ -126,8 +128,7 @@ def both(sensitivity):
     detect_voice_thread.start()
     display_frames()
 
-import tkinter as tk
-import random as r
+
 
 ##### SIGN UP PAGE #####
 
