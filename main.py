@@ -2,7 +2,7 @@ import cv2
 import mediapipe as mp
 import pyautogui
 import speech_recognition as sr
-import website_open as wo  # Assuming website_opener is inside this module
+import website_open as wo  
 import threading
 import queue
 
@@ -102,6 +102,7 @@ def eye_tracking(sensitivity):
             right_eye_ratio = right_eye[0].y - right_eye[1].y
             
             if left_eye_ratio < 0.015 and right_eye_ratio > 0.02:  # Detect left eye wink
+               #change this for EYE VALUE ^^^^^
                 pyautogui.click()
                 pyautogui.sleep(1)
         frame_queue.put(frame)
