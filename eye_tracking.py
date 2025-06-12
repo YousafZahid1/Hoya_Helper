@@ -62,7 +62,6 @@ label = tk.Label(first, text="Your handy dandy helper", font=('Arial', 15))
 label.place()
 
 
-##
 
 # Labels and Entry fields for username and password
 
