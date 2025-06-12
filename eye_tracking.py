@@ -81,4 +81,3 @@ button2.pack(pady=30)
 # Run the Login window
 
 first.mainloop()
-
