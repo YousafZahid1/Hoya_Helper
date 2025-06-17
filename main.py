@@ -18,7 +18,6 @@ def detect_voice():
        recognizer.adjust_for_ambient_noise(source, duration=1)
        print("Listening for commands...")
 
-
        while True:  # Continuous loop to listen for commands
            try:
                print("Listening...")
