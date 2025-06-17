@@ -7,12 +7,10 @@ import threading
 import queue
 
 frame_queue = queue.Queue()
-
 def detect_voice():
    # Initialize the recognizer
    recognizer = sr.Recognizer()
    counter = 0
-
 
    # Use the microphone as the audio source
    with sr.Microphone() as source:
